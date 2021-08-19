@@ -1,0 +1,21 @@
+body {
+    margin: 0;
+}
+canvas {
+    border: 1px solid black;
+}
+
+.screen {
+    float:left;
+    border: 1px solid black;
+}
+
+.rotationControls {
+    float:left;
+    /*border: 1px solid black;*/
+
+}
+
+.rotationControls input {
+        float: right;
+}

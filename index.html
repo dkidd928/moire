@@ -1,66 +1,64 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Moire Pattern Tester</title>
-    <style type="text/css">
-        body {
-            margin: 0;
-        }
-        canvas {
-            border: 1px solid black;
-        }
-    </style>
+    <title>Moiré Pattern Tester</title>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <link rel="stylesheet" href="style.css"></style>
 </head>
 <body>
 
-<!--     <label for="screens">Number of screens:</label>
-    <input id="screens" type="text"><br> -->
-    <label for="rows">Number of rows:</label>
-    <input id="rows" type="number"><br>
-    <label for="columns">Number of columns:</label>
-    <input id="columns" type="number"><br>
-    <label for="spread">Spread:</label>
-    <input id="spread" type="range" min=0 max=50>
-    <output></output><br>
-    <label for="dotSize">Dot size:</label>
-    <input id="dotSize" type="range" min=0 max=50>
-    <output></output><br>
-    <label for="angle">Angle:</label>
-    <input id="angle" type="range" min=0 max=90>
-    <output></output><br>
-    <label for="modes">Blending Modes:</label>
+    <label for="screens">Number of screens:</label>
+    <input id="screens" type="number" min=0 max=4><br>
+    <label for="mode">Blending Modes:</label>
     <select id="mode">
-      <option value="normal" selected>normal</option>
-      <option value="source-over">source-over</option>
-      <option value="source-in">source-in</option>
-      <option value="source-out">source-out</option>
-      <option value="source-atop">source-atop</option>
-      <option value="destination-over">destination-over</option>
-      <option value="destination-in">destination-in</option>
-      <option value="destination-out">destination-out</option>
-      <option value="destination-atop">destination-atop</option>
-      <option value="lighter">lighter</option>
-      <option value="copy">copy</option>
-      <option value="xor">xor</option>
-      <option value="multiply">multiply</option>
-      <option value="screen">screen</option>
-      <option value="overlay">overlay</option>
-      <option value="darken">darken</option>
-      <option value="lighten">lighten</option>
-      <option value="color-dodge">color-dodge</option>
-      <option value="color-burn">color-burn</option>
-      <option value="hard-light">hard-light</option>
-      <option value="soft-light">soft-light</option>
-      <option value="difference">difference</option>
-      <option value="exclusion">exclusion</option>
-      <option value="hue">hue</option>
-      <option value="saturation">saturation</option>
-      <option value="color">color</option>
-      <option value="luminosity">luminosity</option>
-    </select>
-    <label for="alpha">Alpha:</label><input id="alpha" type="range" min=0 max=100 value="100">
-    <output></output>
-    <br>
+        <option value="source-over">source-over</option>
+        <option value="source-in">source-in</option>
+        <option value="source-out">source-out</option>
+        <option value="source-atop">source-atop</option>
+        <option value="destination-over">destination-over</option>
+        <option value="destination-in">destination-in</option>
+        <option value="destination-out">destination-out</option>
+        <option value="destination-atop">destination-atop</option>
+        <option value="lighter">lighter</option>
+        <option value="copy">copy</option>
+        <option value="xor">xor</option>
+        <option value="multiply">multiply</option>
+        <option value="screen">screen</option>
+        <option value="overlay">overlay</option>
+        <option value="darken">darken</option>
+        <option value="lighten">lighten</option>
+        <option value="color-dodge">color-dodge</option>
+        <option value="color-burn">color-burn</option>
+        <option value="hard-light">hard-light</option>
+        <option value="soft-light">soft-light</option>
+        <option value="difference">difference</option>
+        <option value="exclusion">exclusion</option>
+        <option value="hue">hue</option>
+        <option value="saturation">saturation</option>
+        <option value="color">color</option>
+        <option value="luminosity">luminosity</option>
+    </select><br>
+    <label for="alpha">Opacity:</label>
+            <input id="alpha" type="range" min=0 max=100>
+            <output></output><br>
+
+    <div>
+        <div class="rotationControls">
+        <label for="rotation">Rotation:</label>
+        </div>
+        <div class="rotationControls">
+            <form id="rotation">
+                    <label for="clockwise">Clockwise</label>
+                    <input type="radio" id="clockwise" name="rotation"><br>
+                    <label for="counterClockwise">Counterclockwise</label>
+                    <input type="radio" id="counterClockwise" name="rotation">
+                
+            </form>
+        </div><br>
+    </div><br><br>
+    <div id=screensContainer></div>
+
     <!-- <label for="proof">Proof</label>
     <input id="proof" type="checkbox"><br> -->
     <canvas id="canvas"></canvas>
