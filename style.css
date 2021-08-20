@@ -17,5 +17,29 @@ canvas {
 }
 
 .rotationControls input {
-        float: right;
+    float: right;
+}
+
+.colorFloat {
+    /*border: 1px solid black;*/
+    height: 22px;
+}
+
+.colorFloat label{
+    float:left;
+}
+
+.colorFloat input{
+    float:left;
+}
+
+.colorFloat .picker {
+    height: 22px;
+    width: 24px;
+    border: 0;
+    padding: 0;
+}
+
+.colorValue {
+    width: 55px;
 }

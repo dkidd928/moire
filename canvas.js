@@ -26,7 +26,7 @@ const angleMax      = 180;
 
 
 //define palettes
-const colors    = ['yellow', 'magenta', 'cyan', 'black'];
+const colors    = ['#FFFF00', '#FF00FF', '#00FFFF', '#000000'];
 const cmyk      = ["#FCEE0B","#B9529F","#6FCCDD",'#000000'];
 var palette     = colors;
 
@@ -103,6 +103,19 @@ function redrawScreens() {
     screensArr.forEach((screen) => { screen.draw();});
 }
 
+function isValidColor(colorInput) {
+    const regex = new RegExp("#?[0-9|A-F|a-f]{6}");
+    if (regex.test(colorInput.value)) {
+        if (!(colorInput.value.slice(0,1) == '#')) {
+            colorInput.value = '#' + colorInput.value;
+        }
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
 
 function updateRotation(){
     if (!cwInput.checked && ccwInput.checked) {
@@ -155,18 +168,74 @@ cwInput.onchange        = function() {
 function buildScreen(screen) {
     screensArr.push(screen);
 
-    var id = "screen-"+screen.id;
+    let id = "screen-"+screen.id;
     //create new screen div, set id
-    var newScreen = document.createElement("div");
+    let newScreen = document.createElement("div");
     newScreen.setAttribute("id", id);
     newScreen.setAttribute("class", "screen");
+
     //create and append controls to new screen div
-    var rowsInputLabel = document.createElement("label");
+    let anonDiv = document.createElement("div");
+    newScreen.appendChild(anonDiv);
+
+    let floatDiv = document.createElement("div");
+    anonDiv.setAttribute("class", "colorFloat");
+    anonDiv.appendChild(floatDiv);
+
+
+    let colorInputLabel = document.createElement("label");
+    colorInputLabel.setAttribute("for", id+"-color");
+    colorInputLabel.innerText = "Color:"
+    floatDiv.appendChild(colorInputLabel);
+
+    let colorInput = document.createElement("input");
+    colorInput.setAttribute("id", id+"-color");
+    colorInput.setAttribute("class", "colorValue");
+    colorInput.setAttribute("type", "text");
+    colorInput.setAttribute("maxlength", 7);
+    colorInput.value = screen.color;
+    screen.colorInput = colorInput;
+    floatDiv.appendChild(colorInput);
+
+    colorInput.onfocus = function() {
+        colorInput.oldvalue = colorInput.value;
+     };
+
+    colorInput.onchange = function() {
+        if (isValidColor(colorInput)) {
+            screen.color = colorInput.value;
+            colorPicker.value = colorInput.value;
+            colorInput.oldvalue = colorInput.value;
+            redrawScreens();
+        }
+        else {
+            alert("Please enter a hex color value using six hexadecimal digits");
+            colorInput.value = colorInput.oldvalue;
+        }
+     };
+
+    let colorPicker = document.createElement("input");
+    colorPicker.setAttribute("id", id+"-colorPicker");
+    colorPicker.setAttribute("class", "picker");
+    colorPicker.setAttribute("type", "color");
+    colorPicker.value = screen.color;
+    screen.colorPicker = colorPicker;
+    floatDiv.appendChild(colorPicker);
+    floatDiv.append(document.createElement("br"));
+    floatDiv.append(document.createElement("br"));
+
+    colorPicker.onchange = function() {
+        screen.color = colorPicker.value;
+        colorInput.value = colorPicker.value;
+        redrawScreens();
+     };
+
+    let rowsInputLabel = document.createElement("label");
     rowsInputLabel.setAttribute("for", id+"-rows");
     rowsInputLabel.innerText = "Number of rows:"
     newScreen.appendChild(rowsInputLabel);
 
-    var rowsInput = document.createElement("input");
+    let rowsInput = document.createElement("input");
     rowsInput.setAttribute("id", id+"-rows");
     rowsInput.setAttribute("type", "number");
     rowsInput.setAttribute("min", rowsMin);
@@ -182,12 +251,12 @@ function buildScreen(screen) {
         redrawScreens();
     };
 
-    var columnsInputLabel = document.createElement("label");
+    let columnsInputLabel = document.createElement("label");
     columnsInputLabel.setAttribute("for", id+"-columns");
     columnsInputLabel.innerText = "Number of columns:";
     newScreen.appendChild(columnsInputLabel);
 
-    var columnsInput = document.createElement("input");
+    let columnsInput = document.createElement("input");
     columnsInput.setAttribute("id", id+"-columns");
     columnsInput.setAttribute("type", "number");
     columnsInput.setAttribute("min", columnsMin);
@@ -203,12 +272,12 @@ function buildScreen(screen) {
         redrawScreens();
      };
 
-    var spreadInputLabel = document.createElement("label");
+    let spreadInputLabel = document.createElement("label");
     spreadInputLabel.setAttribute("for", id+"-spread");
     spreadInputLabel.innerText = "Spread:";
     newScreen.appendChild(spreadInputLabel);
 
-    var spreadInput = document.createElement("input");
+    let spreadInput = document.createElement("input");
     spreadInput.setAttribute("id", id+"-spread");
     spreadInput.setAttribute("type", "range");
     spreadInput.setAttribute("min", spreadMin);
@@ -227,12 +296,12 @@ function buildScreen(screen) {
         redrawScreens();
      };
 
-    var dotSizeInputLabel = document.createElement("label");
+    let dotSizeInputLabel = document.createElement("label");
     dotSizeInputLabel.setAttribute("for", id+"-dotSize");
     dotSizeInputLabel.innerText = "Dot size:";
     newScreen.appendChild(dotSizeInputLabel);
 
-    var dotSizeInput = document.createElement("input");
+    let dotSizeInput = document.createElement("input");
     dotSizeInput.setAttribute("id", id+"-dotSize");
     dotSizeInput.setAttribute("type", "range");
     dotSizeInput.setAttribute("min", dotSizeMin);
@@ -252,12 +321,12 @@ function buildScreen(screen) {
         redrawScreens();
      };
 
-    var angleInputLabel = document.createElement("label");
+    let angleInputLabel = document.createElement("label");
     angleInputLabel.setAttribute("for", id+"-angle");
     angleInputLabel.innerText = "Angle:";
     newScreen.appendChild(angleInputLabel);
 
-    var angleInput = document.createElement("input");
+    let angleInput = document.createElement("input");
     angleInput.setAttribute("id", id+"-angle");
     angleInput.setAttribute("type", "range");
     angleInput.setAttribute("min", angleMin);
