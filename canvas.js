@@ -23,6 +23,8 @@ const dotSizeMin    = 0;
 const dotSizeMax    = 50;
 const angleMin      = 0;
 const angleMax      = 180;
+const screensMin    = 0;
+const screensMax    = 4;
 
 
 //define palettes
@@ -48,7 +50,8 @@ var centerY = canvas.height/2;
 
 
 //BEGIN-setup initial values-----------------------------------//
-screensInput.value              = 3;
+screensInput.value              = 4;
+screensInput.oldvalue           = 4;
 var screens                     = screensInput.value;
 mode.value                      = "source-over";
 ctx.globalCompositeOperation    = mode.value; //set blend mode
@@ -137,11 +140,20 @@ function generateScreenId() {
 
 
 //BEGIN-onchange functions-------------------------------------//
-// screensInput.onchange   = function() {
-//                             //addScreen();
-//                             //checkScreens();
-//                             redrawScreens();
-//                          };
+screensInput.onfocus      = function() {
+                            screensInput.oldvalue = screensInput.value;
+                         };
+
+
+screensInput.onchange   = function() {
+                            if(checkScreenInput(screensInput)) {
+                                screensInput.oldvalue = screensInput.value;
+                                redrawScreens();
+                            }
+                            else {
+                                screensInput.value = screensInput.oldvalue;
+                            }
+                         };
 
 mode.onchange           = function() {
                             ctx.globalCompositeOperation = mode.value;
@@ -370,20 +382,58 @@ function buildScreen(screen) {
 
 
 palette.forEach((color,index) => {
-    let newScreen = new Screen(palette[index], 7, 13, 10, 14, getRandomInt(0,180));
-    buildScreen(newScreen);
-    //call addScreen instead
+    addScreen(palette[index]);
     redrawScreens();
     });
 
-function checkScreens(){
-    //if screens value reduced, call removeScreen,
-    //else if screens value increased, call addScreen
+function getRandomHexColor() {
+    let hexArr = [0,1,2,3,4,5,6,7,8,9,'A','B','C','D','E','F'];
+    let hexColor = "";
+    for (let i = 0; i < 6;i++) {
+        hexColor += hexArr[getRandomInt(0,15)];
+    }
+    return '#' + hexColor;
 }
 
-function addScreen() {
-    let newScreen = new Screen(palette[index], 7, 13, 10, 14, getRandomInt(0,180));
+
+function addScreen(color = getRandomHexColor()) {
+    let newScreen = new Screen(color, 7, 13, 10, 14, getRandomInt(0,180));
     buildScreen(newScreen);
+}
+
+
+function removeScreen() {
+    let popped = screensArr.pop();
+    screensContainer.removeChild(screensContainer.lastChild);
+    console.log("removed "+popped.color + " screen");
+
+}
+
+
+function checkScreenInput(screensInput) {
+    if (screensInput.valueAsNumber > screensMax) {
+        return false;
+    }
+    else if (screensInput.valueAsNumber < screensMin) {
+        return false;
+    }
+    else{
+        if (screensInput.valueAsNumber > screensInput.oldvalue) {
+            let calls = screensInput.valueAsNumber - screensInput.oldvalue;
+            for (let i = 0; i < calls; i++) {
+                addScreen();
+            }
+        }
+        if (screensInput.oldvalue > screensInput.valueAsNumber) {
+            let calls = screensInput.oldvalue - screensInput.valueAsNumber;
+            for (let i = 0; i < calls; i++) {
+                if (screensArr.length > 0) {
+                    removeScreen(screensArr[screensArr.length-1]);
+                }
+            }
+        }
+        return true;
+    }
 }
 
 
@@ -401,17 +451,10 @@ function destroyScreens(){
     while (screensContainer.firstChild) {
         screensContainer.removeChild(screensContainer.lastChild);
     }
+    clear();
 }
 
-function updateScreens() {
-    // destroyScreens();
-    for (i = 0; i < screens; i++){
-    }
-}
 
-function removeScreen() {
-
-}
 
 // function proofTest() {
 //     clear();
