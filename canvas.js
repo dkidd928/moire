@@ -2,10 +2,11 @@
 const canvas            = document.getElementById('canvas');
 const alpha             = document.getElementById('alpha');
 const mode              = document.getElementById('mode');
-const screensInput      = document.getElementById('screens'); //not implemented yet
+const screensInput      = document.getElementById('screens');
 const screensContainer  = document.getElementById("screensContainer");
 const cwInput           = document.getElementById("clockwise");
 const ccwInput          = document.getElementById("counterClockwise");
+const animateSw         = document.getElementById("animateSw");
 
 
 //set up screenArr to keep track of all generated screens
@@ -28,7 +29,7 @@ const screensMax    = 4;
 
 
 //define palettes
-const colors    = ['#FFFF00', '#FF00FF', '#00FFFF', '#000000'];
+const colors    = ['#00FFFF', '#FF00FF', '#FFFF00', '#000000'];
 const cmyk      = ["#FCEE0B","#B9529F","#6FCCDD",'#000000'];
 var palette     = colors;
 
@@ -48,6 +49,8 @@ var ctx = canvas.getContext('2d');
 var centerX = canvas.width/2;
 var centerY = canvas.height/2;
 
+
+var isAnimating = false;
 
 //BEGIN-setup initial values-----------------------------------//
 screensInput.value              = 4;
@@ -106,6 +109,30 @@ function redrawScreens() {
     screensArr.forEach((screen) => { screen.draw();});
 }
 
+function animate() {
+    if (isAnimating) {
+        requestAnimationFrame(animate);
+        redrawScreens();
+        screensArr.forEach((screen,index) => {
+            if (Math.round(screen.angle) == 180) {
+                screen.angle = 0;
+            }
+            screen.angle += (index*.2) +.1;
+        });
+    }
+}
+
+function play() {
+    isAnimating = true;
+    animate();
+}
+
+function pause() {
+    isAnimating = false;
+}
+
+
+
 function isValidColor(colorInput) {
     const regex = new RegExp("#?[0-9|A-F|a-f]{6}");
     if (regex.test(colorInput.value)) {
@@ -139,7 +166,20 @@ function generateScreenId() {
 }
 
 
-//BEGIN-onchange functions-------------------------------------//
+//BEGIN-on- functions------------------------------------------//
+animateSw.onclick         = function() {
+                            if (animateSw.value == "Animate") {
+
+                                isAnimating = true;
+                                animate();
+                                animateSw.value = "Stop";
+                            }
+                            else {
+                                isAnimating = false;
+                                animateSw.value = "Animate";
+                            }
+                         };
+
 screensInput.onfocus      = function() {
                             screensInput.oldvalue = screensInput.value;
                          };
@@ -173,7 +213,7 @@ ccwInput.onchange       = function() {
 cwInput.onchange        = function() {
                             updateRotation();
                          };
-//END---onchange functions-------------------------------------//
+//END---on- functions------------------------------------------//
 
 
 //BEGIN-buildScreen function-----------------------------------//
@@ -396,8 +436,8 @@ function getRandomHexColor() {
 }
 
 
-function addScreen(color = getRandomHexColor()) {
-    let newScreen = new Screen(color, 7, 13, 10, 14, getRandomInt(0,180));
+function addScreen(color = getRandomHexColor(), angle = getRandomInt(0,180)) {
+    let newScreen = new Screen(color, 50, 50, 5, 4, angle);
     buildScreen(newScreen);
 }
 
