@@ -7,6 +7,7 @@ const screensContainer  = document.getElementById("screensContainer");
 const cwInput           = document.getElementById("clockwise");
 const ccwInput          = document.getElementById("counterClockwise");
 const animateSw         = document.getElementById("animateSw");
+const angleSet          = document.getElementById("angleSet");
 
 
 //set up screenArr to keep track of all generated screens
@@ -29,9 +30,23 @@ const screensMax    = 4;
 
 
 //define palettes
-const colors    = ['#00FFFF', '#FF00FF', '#FFFF00', '#000000'];
+const colors    = ["#00FFFF","#FF00FF","#FFFF00","#000000"];
 const cmyk      = ["#FCEE0B","#B9529F","#6FCCDD",'#000000'];
+const tritone   = ["#093299","#033ED0","#0049FF"];
+const duotone   = ["#2E2F31","#474B54"];
 var palette     = colors;
+
+//define angle sets
+const cmyk_us = [15,75,0,45];
+const cmyk_eu = [15,45,0,75];
+const cmyk_a  = [15,45,30,45];
+const cmyk_b  = [45,15,0,75];
+const cmyk_c  = [45,75,0,15];
+const cmyk_d  = [75,15,0,45];
+const cmyk_e  = [75,45,0,15];
+const cmyk_f  = [75,15,60,45];
+const tri     = [45,75,15];
+const duo     = [45,75];
 
 
 //set up canvas width and height
@@ -53,6 +68,7 @@ var centerY = canvas.height/2;
 var isAnimating = false;
 
 //BEGIN-setup initial values-----------------------------------//
+angleSet.value                  = "4-US";
 screensInput.value              = 4;
 screensInput.oldvalue           = 4;
 var screens                     = screensInput.value;
@@ -109,6 +125,52 @@ function redrawScreens() {
     screensArr.forEach((screen) => { screen.draw();});
 }
 
+function getAngleSet(setAsString) {
+    let set = cmyk_us;
+    if (setAsString.slice(0,1) == '4') {
+        switch (setAsString[setAsString.length -1]) {
+            case 'S':
+                set = cmyk_us;
+                break;
+            case 'U':
+                set = cmyk_eu;
+                break;
+            case 'a':
+                set = cmyk_a;
+                break;
+            case 'b':
+                set = cmyk_b;
+                break;
+            case 'c':
+                set = cmyk_c;
+                break;
+            case 'd':
+                set = cmyk_d;
+                break;
+            case 'e':
+                set = cmyk_e;
+                break;
+            case 'f':
+                set = cmyk_f;
+                break;
+            default:
+                set = cmyk_us;
+        }
+    }
+    else if (setAsString.slice(0,1) == 't') {
+        set = tri;
+    }
+    else if (setAsString.slice(0,1) == 'd') {
+        set = duo;
+    }
+    else {
+        set = cmyk_us;
+    }
+    return set;
+}
+
+
+//BEGIN-animation functions -----------------------------------//
 function animate() {
     if (isAnimating) {
         requestAnimationFrame(animate);
@@ -125,12 +187,15 @@ function animate() {
 function play() {
     isAnimating = true;
     animate();
+    animateSw.value = "Stop";
 }
 
 function pause() {
     isAnimating = false;
+    animateSw.value = "Animate";
 }
 
+//END---animation functions -----------------------------------//
 
 
 function isValidColor(colorInput) {
@@ -169,14 +234,10 @@ function generateScreenId() {
 //BEGIN-on- functions------------------------------------------//
 animateSw.onclick         = function() {
                             if (animateSw.value == "Animate") {
-
-                                isAnimating = true;
-                                animate();
-                                animateSw.value = "Stop";
+                                play();
                             }
                             else {
-                                isAnimating = false;
-                                animateSw.value = "Animate";
+                                pause();
                             }
                          };
 
@@ -188,14 +249,35 @@ screensInput.onfocus      = function() {
 screensInput.onchange   = function() {
                             if(checkScreenInput(screensInput)) {
                                 screensInput.oldvalue = screensInput.value;
-                                redrawScreens();
+                                pause();
                             }
                             else {
                                 screensInput.value = screensInput.oldvalue;
                             }
                          };
 
+angleSet.onchange       = function() {
+                            pause();
+                            destroyScreens();
+                            let set = getAngleSet(angleSet.value);
+                            if (set.length == 4) {
+                                palette = colors;
+                            }
+                            else if (set.length == 3) {
+                                palette = tritone;
+                            }
+                            else if (set.length == 2) {
+                                palette = duotone;
+                            }
+                            set.forEach((angle, index) => {
+                                addScreen(palette[index], angle);
+                            });
+                            screensInput.value = set.length;
+                            screensInput.oldvalue = set.length;
+                         };
+
 mode.onchange           = function() {
+                            pause();
                             ctx.globalCompositeOperation = mode.value;
                             redrawScreens();
                          };
@@ -423,7 +505,6 @@ function buildScreen(screen) {
 
 palette.forEach((color,index) => {
     addScreen(palette[index]);
-    redrawScreens();
     });
 
 function getRandomHexColor() {
@@ -439,6 +520,7 @@ function getRandomHexColor() {
 function addScreen(color = getRandomHexColor(), angle = getRandomInt(0,180)) {
     let newScreen = new Screen(color, 50, 50, 5, 4, angle);
     buildScreen(newScreen);
+    redrawScreens();
 }
 
 
@@ -446,7 +528,7 @@ function removeScreen() {
     let popped = screensArr.pop();
     screensContainer.removeChild(screensContainer.lastChild);
     console.log("removed "+popped.color + " screen");
-
+    redrawScreens();
 }
 
 
@@ -477,6 +559,16 @@ function checkScreenInput(screensInput) {
 }
 
 
+function destroyScreens(){
+    while (screensContainer.firstChild) {
+        screensContainer.removeChild(screensContainer.lastChild);
+        screensArr.pop();
+    }
+    clear();
+}
+
+
+
 //BEGIN-ancillary/unused/unimplemented-------------------------//
 function drawCenter() {
     ctx.beginPath();
@@ -485,13 +577,6 @@ function drawCenter() {
     ctx.moveTo(0,centerY);
     ctx.lineTo(canvas.width,centerY);
     ctx.stroke();
-}
-
-function destroyScreens(){
-    while (screensContainer.firstChild) {
-        screensContainer.removeChild(screensContainer.lastChild);
-    }
-    clear();
 }
 
 
